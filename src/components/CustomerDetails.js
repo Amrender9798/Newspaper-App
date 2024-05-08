@@ -61,7 +61,7 @@ const CustomerDetails = () => {
       const [year, month, day] = selectedDate.split('-').map(Number);
       const secretDate =dayOfYear(day, month, year);
       const response = await axios.get(
-        `http://localhost:5000/purchases?userId=${id}&date=${secretDate}`
+        `https://newspaper-backend-1.onrender.com/purchases?userId=${id}&date=${secretDate}`
       );
       console.log(response.data);
       setPurchases(response.data);
