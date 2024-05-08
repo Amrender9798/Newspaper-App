@@ -7,7 +7,7 @@ const Modal = ({ isOpen, onClose, onSubmit, type }) => {
 
   const handleSubmit = async () => {
     if (type === "Customer") {
-      const response = await axios.post("http://localhost:5000/customers", {
+      const response = await axios.post("https://newspaper-backend-1.onrender.com/customers", {
         name,
       });
       console.log(response.status);
@@ -16,7 +16,7 @@ const Modal = ({ isOpen, onClose, onSubmit, type }) => {
 
       }
     } else if (type === "Newspaper") {
-      const response = await axios.post("http://localhost:5000/newspapers", {
+      const response = await axios.post("https://newspaper-backend-1.onrender.com/newspapers", {
         name,
         price
       });

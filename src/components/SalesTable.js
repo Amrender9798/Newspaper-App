@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-const SalesTable = ({ newspapers, balance, customerId, isToday }) => {
+import dayOfYear, { findDayMonthYear } from "../helper/Date";
+const SalesTable = ({ newspapers, balance, customerId }) => {
   const navigate = useNavigate();
   const [quantities, setQuantities] = useState({});
   const [payAmount, setPayAmount] = useState(0);
@@ -15,13 +16,37 @@ const SalesTable = ({ newspapers, balance, customerId, isToday }) => {
   }, 0);
 
   const remainingBalance =
-    payAmount !== 0 ? totalAmount + balance - payAmount : "";
+    payAmount > 0 ? totalAmount + balance - payAmount : totalAmount + balance;
 
   const handleSubmit = async () => {
     console.log("Form Submitted");
-    await axios.put(`http://localhost:5000/customers/balance/${customerId}`, {
+    await axios.put(`https://newspaper-backend-1.onrender.com/customers/balance/${customerId}`, {
       balance: remainingBalance.toFixed(2),
     });
+    const {day,month,year} = findDayMonthYear();
+    const date = dayOfYear(day,month,year);
+    const salesData = newspapers
+      .filter((newspaper) => quantities[newspaper._id] > 0)
+      .map((newspaper) => {
+        
+        return {
+          userId: customerId,
+          newspaper: newspaper.name,
+          price: newspaper.price,
+          quantity: quantities[newspaper._id],
+          date,
+        };
+      });
+      await axios.post("https://newspaper-backend-1.onrender.com/purchases", salesData);
+
+      await axios.post("https://newspaper-backend-1.onrender.com/sales", {
+        userId: customerId,
+        sales: totalAmount,
+        cash: payAmount,
+        date 
+      });
+      
+      
   };
   return (
     <>
@@ -66,10 +91,10 @@ const SalesTable = ({ newspapers, balance, customerId, isToday }) => {
       ))}
 
       {/* Total Amount */}
-      {totalAmount > 0 && (
+      {totalAmount !== 0 && (
         <div className="flex justify-end text-red-500 mb-2">
           <p className="text-xl font-semibold">
-            Today's Amount: {totalAmount.toFixed(2)}
+            Sales: {totalAmount.toFixed(2)}
           </p>
         </div>
       )}
@@ -92,7 +117,7 @@ const SalesTable = ({ newspapers, balance, customerId, isToday }) => {
       {/* Pay Input Field */}
       {(balance > 0 || totalAmount > 0) && (
         <div className="flex justify-end text-red-500 mb-2">
-          <p className="text-xl font-semibold">Pay: </p>
+          <p className="text-xl font-semibold">Cash: </p>
           <input
             type="number"
             placeholder="Enter Pay Amount"
@@ -118,12 +143,14 @@ const SalesTable = ({ newspapers, balance, customerId, isToday }) => {
         >
           Home
         </button>
-        {(balance > 0 || totalAmount > 0) && <button
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-          onClick={handleSubmit}
-        >
-          Submit
-        </button>}
+        {(balance > 0 || totalAmount > 0) && (
+          <button
+            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+            onClick={handleSubmit}
+          >
+            Submit
+          </button>
+        )}
       </div>
     </>
   );

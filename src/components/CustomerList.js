@@ -13,14 +13,14 @@ const CustomerList = () => {
   const [modalType, setModalType] = useState("");
 
   useEffect(()=>{
-    axios.get("http://localhost:5000/customers")
+    axios.get("https://newspaper-backend-1.onrender.com/customers")
     .then((res) => {
-      setCustomers(res.data);
+      setCustomers(res.data.customers);
     })
     .catch((err) => {
       console.log(err);
     });
-  },[customers]);
+  },[]);
 
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
@@ -87,7 +87,7 @@ const CustomerList = () => {
       />
       <ul>
         {filteredCustomers.map((customer) => (
-          <li key={customer.id} className="py-2 px-4 border-b border-gray-300">
+          <li key={customer._id} className="py-2 px-4 border-b border-gray-300">
             <Link
               to={`/customer/${customer._id}`}
               className="text-blue-500 hover:underline"
