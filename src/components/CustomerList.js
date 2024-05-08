@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import Modal from "./Modal";
-
-
 
 const CustomerList = () => {
   const [customers, setCustomers] = useState([]);  
@@ -11,6 +9,7 @@ const CustomerList = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const [modalType, setModalType] = useState("");
+  const navigate = useNavigate();
 
   useEffect(()=>{
     axios.get("https://newspaper-backend-1.onrender.com/customers")
@@ -33,11 +32,12 @@ const CustomerList = () => {
   const handleDropdownOptionClick = (option) => {
     if (option === "Customer") {
       setModalType("Customer");  
-      setIsModalOpen(true);
     } else if (option === "Newspaper") {
       setModalType("Newspaper");
-      setIsModalOpen(true);
+    } else if (option === "Summary") {
+      navigate("/home");
     }
+    setIsModalOpen(true);
     setShowDropdown(false);
   };
 
@@ -73,6 +73,12 @@ const CustomerList = () => {
                 onClick={() => handleDropdownOptionClick("Newspaper")}
               >
                 Newspaper
+              </button>
+              <button
+                className="block w-full text-left px-4 py-2 hover:bg-gray-100"
+                onClick={() => handleDropdownOptionClick("Summary")}
+              >
+                Summary
               </button>
             </div>
           )}
