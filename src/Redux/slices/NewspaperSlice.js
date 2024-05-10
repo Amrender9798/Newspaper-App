@@ -37,17 +37,7 @@ export const updateNewspaper = createAsyncThunk(
     }
 )
 
-export const deleteNewspaper = createAsyncThunk(
-    "newspapers/deleteNewspaper",
-    async ({id}) => {
-       try {
-        await axios.delete(`https://newspaper-backend-1.onrender.com/newspapers/${id}`);
-        return id;
-       } catch (error) {
-        console.log(error);  
-       }
-    }
-)
+
 
 
 
@@ -90,19 +80,6 @@ export const newspaperSlice = createSlice({
             state.isLoading = false;
         })
         .addCase(updateNewspaper.rejected, (state, action) => {
-            state.isLoading = false;
-            state.error = action.error.message;
-        })
-        .addCase(deleteNewspaper.pending, (state) => {
-            state.isLoading = true;
-            state.error = null;
-        })
-        .addCase(deleteNewspaper.fulfilled, (state, action) => {
-            state.newspapers = state.newspapers.filter((newspaper) => newspaper._id !== action.payload);
-            localStorage.setItem("newspapers", JSON.stringify(state.newspapers));
-            state.isLoading = false;
-        })
-        .addCase(deleteNewspaper.rejected, (state, action) => {
             state.isLoading = false;
             state.error = action.error.message;
         })

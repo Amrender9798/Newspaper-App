@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
-import Modal from "./Modal";
 import Spinner from "./Spinner";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchCustomers, selectCustomers } from "../Redux/slices/CustomerSlice";
+import { fetchCustomers, selectCustomers, setCustomers } from "../Redux/slices/CustomerSlice";
 import Error from "./Error";
+import CustomerModal from "../modals/CustomerModal";
 
 
 const CustomerList = () => { 
@@ -15,13 +14,21 @@ const CustomerList = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
-  const [modalType, setModalType] = useState("");
-  
   
 
   useEffect(() => {
-    dispatch(fetchCustomers());
-  },[]);
+    const storedCustomers = localStorage.getItem("customers");
+    if (storedCustomers) {
+      dispatch(setCustomers(JSON.parse(storedCustomers)));
+    } else {
+      console.log('customers from API');
+      dispatch(fetchCustomers());
+    }
+  }, []);
+  
+  
+
+ 
 
   if(isLoading){
     return <Spinner/>;
@@ -44,14 +51,13 @@ const CustomerList = () => {
 
   const handleDropdownOptionClick = (option) => {
     if (option === "Customer") {
-      setModalType("Customer");  
+      setIsModalOpen(true); 
       
     } else if (option === "Newspaper") {
       navigate("/newspapers");
     } else if (option === "Summary") {
       navigate(`/summary/${balance}`);
     }
-    setIsModalOpen(true);
     setShowDropdown(false);
   };
 
@@ -115,11 +121,9 @@ const CustomerList = () => {
           </li>
         ))}
       </ul>
-      <Modal
-        type={modalType}
+      <CustomerModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        newspaper={{name : "", price : ""}}
       />
     </div>
   );

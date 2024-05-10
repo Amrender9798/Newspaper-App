@@ -60,12 +60,9 @@ const Newspaper = () => {
           </div>
           <div>
             <button className="text-gray-500 mr-4" onClick={() => handleUpdate(newspaper)}>
-              <RiPencilLine size={20} />
+              <RiPencilLine size={30} />
             </button>
-            <button className="text-red-500"
-              onClick={() => dispatch(deleteNewspaper({id : newspaper._id}))}>
-              <RiDeleteBinLine size={20} />
-            </button>
+          
           </div>
         </div>
       ))}
