@@ -41,8 +41,8 @@ export const deleteNewspaper = createAsyncThunk(
     "newspapers/deleteNewspaper",
     async ({id}) => {
        try {
-        const response = await axios.delete(`https://newspaper-backend-1.onrender.com/newspapers/${id}`);
-        return response.data;
+        await axios.delete(`https://newspaper-backend-1.onrender.com/newspapers/${id}`);
+        return id;
        } catch (error) {
         console.log(error);  
        }
@@ -85,9 +85,9 @@ export const newspaperSlice = createSlice({
             state.error = null;
         })
         .addCase(updateNewspaper.fulfilled, (state, action) => {
-            console.log('updated newspaper',action.payload);
+            state.newspapers = state.newspapers.map((newspaper) => newspaper._id === action.payload._id ? action.payload : newspaper);
+            localStorage.setItem("newspapers", JSON.stringify(state.newspapers));
             state.isLoading = false;
-            state.error = null;
         })
         .addCase(updateNewspaper.rejected, (state, action) => {
             state.isLoading = false;
@@ -98,9 +98,9 @@ export const newspaperSlice = createSlice({
             state.error = null;
         })
         .addCase(deleteNewspaper.fulfilled, (state, action) => {
-           
+            state.newspapers = state.newspapers.filter((newspaper) => newspaper._id !== action.payload);
+            localStorage.setItem("newspapers", JSON.stringify(state.newspapers));
             state.isLoading = false;
-            state.error = null;
         })
         .addCase(deleteNewspaper.rejected, (state, action) => {
             state.isLoading = false;

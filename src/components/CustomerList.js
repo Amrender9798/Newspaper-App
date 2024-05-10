@@ -119,6 +119,7 @@ const CustomerList = () => {
         type={modalType}
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
+        newspaper={{name : "", price : ""}}
       />
     </div>
   );

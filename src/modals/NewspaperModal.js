@@ -1,33 +1,32 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import { useDispatch } from "react-redux";
 import { addNewspaper, updateNewspaper } from "../Redux/slices/NewspaperSlice";
 
-const Modal = ({ isOpen, onClose, type, newspaper }) => {
+const NewspaperModal = ({ isOpen, onClose, newspaper,action }) => {
   const dispatch = useDispatch();
   const [name, setName] = useState("");
   const [price, setPrice] = useState("");
 
   useEffect(() => {
-   setName(newspaper.name);
-   setPrice(newspaper.price);
-  }, [newspaper]);
+   if(action === 'Update'){
+    setName(newspaper.name);
+    setPrice(newspaper.price);
+   }
+   else{
+    setName("");
+    setPrice("");
+   }
+  }, [action, newspaper]);
 
 
   const handleSubmit = async () => {
-    if (type === "Customer") {
-      const response = await axios.post("https://newspaper-backend-1.onrender.com/customers", {
-        name,
-      });
-    } else if (type === "Newspaper") {
-
-      if(newspaper){
-        dispatch(updateNewspaper({id : newspaper._id,name,price}));
+    if(newspaper){
+         dispatch(updateNewspaper({id : newspaper._id,name,price}));
       }
       else{
         dispatch(addNewspaper({name,price}));
       }
-    }
+    
     onClose();
   };
 
@@ -38,7 +37,7 @@ const Modal = ({ isOpen, onClose, type, newspaper }) => {
       }`}
     >
       <div className="bg-white p-4 rounded-md shadow-md">
-        <h2 className="text-lg font-bold mb-4">Add {type}</h2>
+        <h2 className="text-lg font-bold mb-4">{action} Newspaper</h2>
         <input
           type="text"
           placeholder="Enter name"
@@ -46,7 +45,7 @@ const Modal = ({ isOpen, onClose, type, newspaper }) => {
           onChange={(e) => setName(e.target.value)}
           className="border border-gray-300 rounded-md px-3 py-2 mb-4 w-full"
         />
-        {type === "Newspaper" && (
+        
           <input
             type="number"
             placeholder="Enter price"
@@ -54,7 +53,7 @@ const Modal = ({ isOpen, onClose, type, newspaper }) => {
             onChange={(e) => setPrice(e.target.value)}
             className="border border-gray-300 rounded-md px-3 py-2 mb-4 w-full"
           />
-        )}
+       
         <div className="flex justify-end">
           <button
             onClick={onClose}
@@ -74,4 +73,4 @@ const Modal = ({ isOpen, onClose, type, newspaper }) => {
   );
 };
 
-export default Modal;
+export default NewspaperModal;

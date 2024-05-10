@@ -4,14 +4,15 @@ import { deleteNewspaper, fetchNewspapers, setNewspapers } from "../Redux/slices
 import Spinner from "./Spinner";
 import Error from "./Error";
 import { RiDeleteBinLine, RiPencilLine } from "react-icons/ri";
-import Modal from "./Modal";
+import NewspaperModal from "../modals/NewspaperModal";
+
 
 const Newspaper = () => {
   const dispatch = useDispatch();
   const { newspapers, isLoading, error } = useSelector((state) => state.newspaper);
-  const [modalType, setModalType] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedNewspaper, setSelectedNewspaper] = useState(null);
+  const [action,setAction] = useState("");
+  const [newspaper, setNewspaper] = useState(null);
 
   useEffect(() => {
     const storedNewspapers = JSON.parse(localStorage.getItem("newspapers"));
@@ -25,15 +26,13 @@ const Newspaper = () => {
   }, []);
 
   const handleUpdate = (newspaper) => {
-    console.log('update');
-    setModalType("Newspaper");
-    setSelectedNewspaper(newspaper);
+    setAction('Update');
+    setNewspaper(newspaper);
     setIsModalOpen(true);
   };
 
   const handleAdd = () => {
-    setModalType("Newspaper");
-    setSelectedNewspaper(null);
+    setAction('Add');
     setIsModalOpen(true);
   };
 
@@ -70,12 +69,14 @@ const Newspaper = () => {
           </div>
         </div>
       ))}
-      <Modal
-        type={modalType}
+
+      <NewspaperModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        newspaper={selectedNewspaper}
-      />
+        action = {action}
+        newspaper = {newspaper}
+        />
+      
     </div>
   );
 };
