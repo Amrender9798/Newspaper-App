@@ -2,27 +2,40 @@ import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import Modal from "./Modal";
+import Spinner from "./Spinner";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchCustomers, selectCustomers } from "../Redux/slices/CustomerSlice";
+import Error from "./Error";
 
-const CustomerList = () => {
-  const [customers, setCustomers] = useState([]);  
+
+const CustomerList = () => { 
+  const dispatch = useDispatch();
+  const {customers,balance,isLoading,error} = useSelector(selectCustomers);
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const [modalType, setModalType] = useState("");
-  const navigate = useNavigate();
+  
+  
 
-  useEffect(()=>{
-    axios.get("https://newspaper-backend-1.onrender.com/customers")
-    .then((res) => {
-      setCustomers(res.data.customers);
-    })
-    .catch((err) => {
-      console.log(err);
-    });
+  useEffect(() => {
+    dispatch(fetchCustomers());
   },[]);
+
+  if(isLoading){
+    return <Spinner/>;
+  }
+  if(error){
+    return <Error/>;
+
+  }
+  
 
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
+
+
   };
 
   const addCustomer = () => {
@@ -32,22 +45,21 @@ const CustomerList = () => {
   const handleDropdownOptionClick = (option) => {
     if (option === "Customer") {
       setModalType("Customer");  
+      
     } else if (option === "Newspaper") {
-      setModalType("Newspaper");
+      navigate("/newspapers");
     } else if (option === "Summary") {
-      navigate("/home");
+      navigate(`/summary/${balance}`);
     }
     setIsModalOpen(true);
     setShowDropdown(false);
   };
 
-  const handleSubmitNewCustomer = (newCustomer) => {
-    console.log("New customer added:", newCustomer);
-  };
+  
 
-  const filteredCustomers = customers.filter((customer) =>
-    customer.name.toLowerCase().startsWith(searchTerm.toLowerCase())
-  );
+
+
+
 
   return (
     <div className="bg-gray-100 p-4">
@@ -92,10 +104,10 @@ const CustomerList = () => {
         className="border border-gray-300 rounded-md px-3 py-2 mb-4"
       />
       <ul>
-        {filteredCustomers.map((customer) => (
+        {customers.map((customer) => (
           <li key={customer._id} className="py-2 px-4 border-b border-gray-300">
             <Link
-              to={`/customer/${customer._id}`}
+              to={`/customer/${customer._id}/${customer.name}/${customer.balance}`}
               className="text-blue-500 hover:underline"
             >
               {customer.name}
@@ -107,7 +119,6 @@ const CustomerList = () => {
         type={modalType}
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        onSubmit={handleSubmitNewCustomer}
       />
     </div>
   );

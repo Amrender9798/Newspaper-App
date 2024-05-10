@@ -1,29 +1,36 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { useDispatch } from "react-redux";
+import { addNewspaper, addNewspapers, updateNewspaper } from "../Redux/slices/NewspaperSlice";
 
-const Modal = ({ isOpen, onClose, onSubmit, type }) => {
+const Modal = ({ isOpen, onClose, type, newspaper }) => {
+  const dispatch = useDispatch();
   const [name, setName] = useState("");
-  const [price,setPrice] = useState("");
+  const [price, setPrice] = useState("");
+
+  useEffect(() => {
+    if(newspaper){
+      setName(newspaper.name);
+      setPrice(newspaper.price);
+    }
+  }, [newspaper]);
+
 
   const handleSubmit = async () => {
     if (type === "Customer") {
       const response = await axios.post("https://newspaper-backend-1.onrender.com/customers", {
         name,
       });
-      console.log(response.status);
-      if (response.status === 200) {
-        onClose();
-
-      }
     } else if (type === "Newspaper") {
-      const response = await axios.post("https://newspaper-backend-1.onrender.com/newspapers", {
-        name,
-        price
-      });
-      if (response.status === 201) {
-        onSubmit();
+
+      if(newspaper){
+        dispatch(updateNewspaper({id : newspaper._id,name,price}));
+      }
+      else{
+        dispatch(addNewspaper({name,price}));
       }
     }
+    onClose();
   };
 
   return (
@@ -43,7 +50,7 @@ const Modal = ({ isOpen, onClose, onSubmit, type }) => {
         />
         {type === "Newspaper" && (
           <input
-            type="text"
+            type="number"
             placeholder="Enter price"
             value={price}
             onChange={(e) => setPrice(e.target.value)}

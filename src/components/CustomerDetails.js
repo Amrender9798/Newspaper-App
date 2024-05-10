@@ -4,42 +4,38 @@ import axios from "axios";
 import SalesTable from "./SalesTable";
 import PurchaseTable from "./PurchaseTable";
 import dayOfYear, { currentIndianDate } from "../helper/Date";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchNewspapers, setNewspapers } from "../Redux/slices/NewspaperSlice";
+import Spinner from "./Spinner";
+import Error from "./Error";
+
 
 const CustomerDetails = () => {
+  const { id, name, balance } = useParams();
+  const dispatch = useDispatch();
+  const {newspapers,isLoading,error} = useSelector((state) => state.newspaper);
+
+ 
+  useEffect(() => {
+    const storedNewspapers = JSON.parse(localStorage.getItem("newspapers"));
+    if(storedNewspapers){
+      dispatch(setNewspapers(storedNewspapers));
+    }
+    else{
+      dispatch(fetchNewspapers());
+    }
+  }
+  ,[]);
 
   
+  
 
-  const { id } = useParams();
-  const [customer, setCustomer] = useState({});
-  const [newspapers, setNewspapers] = useState([]);
-  const [error, setError] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
+  
   const [selectedDate, setSelectedDate] = useState("");
   const [purchases, setPurchases] = useState([]);
   const [isToday, setIsToday] = useState(true); 
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const customerResponse = await axios.get(
-          `https://newspaper-backend-1.onrender.com/customers/${id}`
-        );
-        setCustomer(customerResponse.data);
-
-        const newspapersResponse = await axios.get(
-          `https://newspaper-backend-1.onrender.com/newspapers`
-        );
-        setNewspapers(newspapersResponse.data);
-
-        setIsLoading(false);
-      } catch (error) {
-        setError(error.message);
-        setIsLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [id]);
+ 
 
   useEffect(() => {
     setSelectedDate(currentIndianDate());
@@ -53,35 +49,24 @@ const CustomerDetails = () => {
    
   };
 
-  const handleSearch = async () => {
-    try { 
-      const today = new Date();
-      const formattedToday = today.toISOString().split("T")[0];
-      setIsToday(selectedDate === formattedToday);
-      const [year, month, day] = selectedDate.split('-').map(Number);
-      const secretDate =dayOfYear(day, month, year);
-      const response = await axios.get(
-        `https://newspaper-backend-1.onrender.com/purchases?userId=${id}&date=${secretDate}`
-      );
-      console.log(response.data);
-      setPurchases(response.data);
-    } catch (error) {
-      setError(error.message);
-    }
-  };
+  const handleSearch = () => {
+    
+  }
+
+ 
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <Spinner/>;
   }
 
   if (error) {
-    return <div>Error: {error}</div>;
+    return <Error/>;
   }
 
   return (
     <div className="bg-gray-100 p-4">
       <div className="">
-        <h1 className="text-xl font-bold mb-4">{customer.name}</h1>
+        <h1 className="text-xl font-bold mb-4">{name}</h1>
 
         <div className="flex">
           <input
@@ -103,7 +88,7 @@ const CustomerDetails = () => {
       {isToday ? (
         <SalesTable
           newspapers={newspapers}
-          balance={customer.balance}
+          balance={parseFloat(balance)}
           purchases={purchases}
           customerId={id}
         />
